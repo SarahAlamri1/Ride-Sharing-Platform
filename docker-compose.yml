@@ -1,0 +1,168 @@
+services:
+  api-gateway:
+    build:
+      context: ./API-Gateway-Service
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8765:8765"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dbtest1:5432/gatewaydb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    
+    depends_on:
+     - dbtest1
+
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    container_name: customer-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dbtest1:5432/customer_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - dbtest1
+
+  driver-service:
+    build:
+      context: ./driver-service
+      dockerfile: Dockerfile
+    container_name: driver-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dbtest1:5432/driver_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - dbtest1
+    
+  dbtest1:
+    image: postgres:15-alpine
+    restart: always
+    container_name: dbtest1
+    environment:
+      POSTGRES_DB: gatewaydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      
+    volumes:
+    - ./db-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432" 
+      
+
+###############END#######################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+    # depends_on: 
+    #   -pg_db 
+    # depends_on:
+    #   - customer-service
+    #   - driver-service
+
+
+  # customer-service:
+  #   build:
+  #     context: ./customer-service
+  #     dockerfile: Dockerfile
+  #   container_name: customer-service
+  #   ports:
+  #     - "8081:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://pg_db:5432/customer_db
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: mysecretpassword
+  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  #   # depends_on:
+  #   #   - customer-db
+  #   networks:
+  #     - micro-network
+
+  # driver-service:
+  #   build:
+  #     context: ./driver-service
+  #     dockerfile: Dockerfile
+  #   container_name: driver-service
+  #   ports:
+  #     - "8082:8080"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://pg_db:5432/driver_db
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: mysecretpassword
+  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  #   # depends_on:
+  #   #   - driver-db
+  #   networks:
+  #     - micro-network
+
+  # customer-db:
+  #   image: postgres:15-alpine
+  #   container_name: customer-db
+  #   environment:
+  #     POSTGRES_DB: customerdb
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5433:5432"
+  #   networks:
+  #     - micro-network
+  #   volumes:
+  #     - customer-db-data:/var/lib/postgresql/data
+
+  # driver-db:
+  #   image: postgres:15-alpine
+  #   container_name: driver-db
+  #   environment:
+  #     POSTGRES_DB: driverdb
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5434:5432"
+  #   networks:
+  #     - micro-network
+  #   volumes:
+  #     - driver-db-data:/var/lib/postgresql/data
+
+#networks:
+ # micro-network:
+  #  driver: bridge
+
+# volumes:
+#   customer-db-data:
+#   driver-db-data:
+
+# docker run --name pg_db -e POSTGRES_PASSWORD=mysecretpassword -v ~/pgdata:/var/lib/postgresql/data -p 5432:5432 -d postgres:15
+# docker cp ./dump.sql pg_test:/docker-entrypoint-initdb.d/dump.sql
+# docker exec -u postgres pg_test psql postgres postgres -f docker-entrypoint-initdb.d/dump.sql
