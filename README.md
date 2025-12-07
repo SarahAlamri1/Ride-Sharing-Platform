@@ -106,5 +106,3 @@ id |        email        |                           password                   
  driver4   | password4
 
 
-
- 
