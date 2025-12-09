@@ -1,0 +1,62 @@
+services:
+  api-gateway:
+    build:
+      context: ./API-Gateway-Service
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8765:8765"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dbtest1:5432/gatewaydb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SESSION_STORE_TYPE: jdbc
+      SPRING_SESSION_JDBC_INITIALIZE_SCHEMA: never
+    
+    depends_on:
+     - dbtest1
+
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    container_name: customer-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dbtest1:5432/customer_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - dbtest1
+
+  driver-service:
+    build:
+      context: ./driver-service
+      dockerfile: Dockerfile
+    container_name: driver-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dbtest1:5432/driver_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - dbtest1
+    
+  dbtest1:
+    image: postgres:15-alpine
+    restart: always
+    container_name: dbtest1
+    environment:
+      POSTGRES_DB: gatewaydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      
+    volumes:
+    - ./db-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432" 

@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: API-Gateway-Service
+
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: never
+      table-name: SPRING_SESSION
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: public
+        format_sql: true
+    show-sql: false
+
+server:
+  port: 8765
+#  servlet:
+#    session:
+#      timeout: 1m
